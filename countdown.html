@@ -3,291 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget Cuenta Regresiva Personalizable</title>
+    <title>Widget Cuenta Regresiva Ultra-Minimalista</title>
     <style>
-        /* Estilos Base - Estilo Notion */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: transparent; /* Fondo transparente por defecto */
+            background-color: transparent;
             overflow: hidden;
             user-select: none;
         }
 
-        /* Contenedor Principal */
-        .widget-wrapper {
+        .widget-container {
             position: relative;
             text-align: center;
-            padding: 20px;
             width: 100%;
-            max-width: 500px;
-            transition: all 0.3s ease;
+            max-width: 320px;
+            padding: 4px;
         }
 
-        /* VISTA DEL CONTADOR */
-        .countdown-display {
+        /* --- VISTA COMPACTA (Estilo original) --- */
+        .countdown-view {
             display: block;
         }
 
-        .widget-title {
-            font-size: 1.5rem;
+        .event-title {
+            font-size: 1rem;
             font-weight: 700;
-            margin: 0 0 8px 0;
+            margin: 0 0 2px 0;
             line-height: 1.2;
         }
 
-        .timer-text {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .timer-text span {
-            font-size: 1.2rem;
+        .timer-digits {
+            font-size: 1rem;
             font-weight: 400;
+            margin: 0;
+            opacity: 0.9;
         }
 
-        /* Botón de Ajustes (Engranaje) */
-        .settings-btn {
+        .timer-digits span {
+            opacity: 0.55;
+        }
+
+        /* Engranaje minúsculo */
+        .settings-trigger {
             position: absolute;
-            top: 5px;
-            right: 5px;
+            top: 2px;
+            right: 2px;
             background: transparent;
             border: none;
-            font-size: 1.2rem;
             cursor: pointer;
             opacity: 0;
-            transition: opacity 0.2s ease;
+            font-size: 0.8rem;
+            transition: opacity 0.2s;
             color: inherit;
+            padding: 0;
         }
 
-        .widget-wrapper:hover .settings-btn {
-            opacity: 0.6;
+        .widget-container:hover .settings-trigger {
+            opacity: 0.3;
         }
 
-        .settings-btn:hover {
+        .settings-trigger:hover {
             opacity: 1 !important;
         }
 
-        /* VISTA DE CONFIGURACIÓN (Oculta por defecto) */
-        .settings-panel {
+        /* --- PANEL DE CONFIGURACIÓN MINI --- */
+        .settings-view {
             display: none;
-            background: #f9f9f9;
-            border: 1px solid #e9e9e9;
-            padding: 15px;
-            border-radius: 8px;
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #edece9;
             text-align: left;
-            color: #333 !important; /* Forzar legibilidad en configuración */
+            max-width: 220px;
+            margin: 0 auto;
         }
 
-        .settings-panel h3 {
-            margin: 0 0 12px 0;
-            font-size: 1rem;
-            border-bottom: 1px solid #e3e3e3;
-            padding-bottom: 5px;
-        }
-
-        .form-group {
-            margin-bottom: 10px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="datetime-local"] {
+        .input-field {
             width: 100%;
-            padding: 6px;
-            border: 1px solid #ccc;
+            padding: 4px 6px;
+            margin-bottom: 6px;
+            border: 1px solid #e1dfda;
             border-radius: 4px;
+            background: #fcfbfa;
+            font-family: inherit;
+            font-size: 0.75rem;
             box-sizing: border-box;
-            font-size: 0.9rem;
+            outline: none;
+            color: #37352f;
         }
 
-        .form-inline {
+        .input-field:focus {
+            border-color: #2383e2;
+        }
+
+        .config-row {
             display: flex;
-            gap: 15px;
             align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.7rem;
+            color: #6b6965;
         }
 
-        .btn-save {
-            background-color: #2383e2;
-            color: white;
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        input[type="color"] {
             border: none;
-            padding: 8px 12px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+            background: transparent;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 1px solid #e1dfda; border-radius: 50%; }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .save-button {
+            width: 100%;
+            background: #37352f;
+            color: #ffffff;
+            border: none;
+            padding: 5px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             font-weight: 500;
-            width: 100%;
-            margin-top: 5px;
         }
 
-        .btn-save:hover {
-            background-color: #1a6ab4;
+        .save-button:hover {
+            background: #000000;
         }
     </style>
 </head>
 <body>
 
-    <div class="widget-wrapper" id="widgetWrapper">
-        <button class="settings-btn" id="toggleSettings" title="Configurar widget">⚙️</button>
+    <div class="widget-container" id="widgetContainer">
+        <button class="settings-trigger" id="toggleBtn">⚙️</button>
 
-        <div class="countdown-display" id="countdownDisplay">
-            <p class="widget-title" id="displayTitle">Mi Evento Especial</p>
-            <p class="timer-text" id="displayTimer">00d 00h 00m 00s</p>
+        <div class="countdown-view" id="countdownView">
+            <p class="event-title" id="displayTitle">Cargando...</p>
+            <p class="timer-digits" id="displayTimer">0y 0m 0d 00h 00m 00s</p>
         </div>
 
-        <div class="settings-panel" id="settingsPanel">
-            <h3>Configuración del Widget</h3>
-            
-            <div class="form-group">
-                <label>Título del Evento:</label>
-                <input type="text" id="inputTitle" value="Mi Evento Especial">
-            </div>
+        <div class="settings-view" id="settingsView">
+            <input type="text" id="inputTitle" class="input-field" placeholder="Título">
+            <input type="datetime-local" id="inputDate" class="input-field">
 
-            <div class="form-group">
-                <label>Fecha y Hora Objetivo:</label>
-                <input type="datetime-local" id="inputDate">
-            </div>
-
-            <div class="form-group form-inline">
-                <div>
-                    <label>Color de Texto:</label>
-                    <input type="color" id="inputColor" value="#0b6e99">
+            <div class="config-row">
+                <div class="color-picker-wrapper">
+                    <span>Color:</span>
+                    <input type="color" id="inputColor">
                 </div>
-                <div>
-                    <label>
-                        <input type="checkbox" id="inputTransparent" checked> Fondo Transparente
-                    </label>
-                </div>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="inputTransparent"> Fondo transparente
+                </label>
             </div>
 
-            <button class="btn-save" id="btnSave">Guardar Cambios</button>
+            <button class="save-button" id="saveBtn">Listo</button>
         </div>
     </div>
 
     <script>
-        // Elementos del DOM
-        const widgetWrapper = document.getElementById('widgetWrapper');
-        const countdownDisplay = document.getElementById('countdownDisplay');
-        const settingsPanel = document.getElementById('settingsPanel');
-        const toggleSettings = document.getElementById('toggleSettings');
-        const btnSave = document.getElementById('btnSave');
+        const container = document.getElementById('widgetContainer');
+        const countdownView = document.getElementById('countdownView');
+        const settingsView = document.getElementById('settingsView');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const saveBtn = document.getElementById('saveBtn');
 
-        // Elementos de visualización
         const displayTitle = document.getElementById('displayTitle');
         const displayTimer = document.getElementById('displayTimer');
 
-        // Elementos de entrada (Inputs)
         const inputTitle = document.getElementById('inputTitle');
         const inputDate = document.getElementById('inputDate');
         const inputColor = document.getElementById('inputColor');
         const inputTransparent = document.getElementById('inputTransparent');
 
-        // Cargar datos guardados o establecer valores por defecto
-        let config = JSON.parse(localStorage.getItem('notion_countdown_config')) || {
+        let config = JSON.parse(localStorage.getItem('micro_countdown_data')) || {
             title: "TNC: FREEFALL",
-            targetDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16), // 10 días en el futuro por defecto
+            targetDate: "2023-10-12T04:00", 
             textColor: "#0b6e99",
             transparent: true
         };
 
-        // Aplicar configuración inicial al cargar la página
-        function applyConfig() {
+        function applySettings() {
             displayTitle.textContent = config.title;
-            widgetWrapper.style.color = config.textColor;
-            
-            if (config.transparent) {
-                document.body.style.backgroundColor = 'transparent';
-            } else {
-                document.body.style.backgroundColor = '#ffffff';
-            }
+            container.style.color = config.textColor;
+            document.body.style.backgroundColor = config.transparent ? 'transparent' : '#ffffff';
 
-            // Rellenar el formulario con los datos actuales
             inputTitle.value = config.title;
             inputDate.value = config.targetDate;
             inputColor.value = config.textColor;
             inputTransparent.checked = config.transparent;
         }
 
-        // Lógica matemática de la cuenta regresiva
-        let timerInterval;
-        function startCountdown() {
-            clearInterval(timerInterval);
-
+        let intervalId;
+        function renderTimer() {
+            clearInterval(intervalId);
             function update() {
-                const target = new Date(config.targetDate).getTime();
-                const now = new Date().getTime();
-                let difference = target - now;
-
-                let suffix = "";
-                // Si la fecha ya pasó (como en tu ejemplo), calcula el tiempo transcurrido
-                if (difference < 0) {
-                    difference = Math.abs(difference);
-                    suffix = " <span>ago</span>";
-                } else {
-                    suffix = " <span>left</span>";
+                const target = new Date(config.targetDate);
+                const now = new Date();
+                
+                let mode = " <span>left</span>";
+                let d1 = now, d2 = target;
+                
+                if (target < now) {
+                    mode = " <span>ago</span>";
+                    d1 = target;
+                    d2 = now;
                 }
 
-                // Cálculos de tiempo
-                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+                let years = d2.getFullYear() - d1.getFullYear();
+                let months = d2.getMonth() - d1.getMonth();
+                let days = d2.getDate() - d1.getDate();
+                let hours = d2.getHours() - d1.getHours();
+                let minutes = d2.getMinutes() - d1.getMinutes();
+                let seconds = d2.getSeconds() - d1.getSeconds();
 
-                // Formatear salida de texto
-                displayTimer.innerHTML = `${days}y ${hours}h ${minutes}m ${seconds}s${suffix}`;
+                if (seconds < 0) { minutes--; seconds += 60; }
+                if (minutes < 0) { hours--; minutes += 60; }
+                if (hours < 0) { days--; hours += 24; }
+                if (days < 0) {
+                    months--;
+                    let prevMonth = new Date(d2.getFullYear(), d2.getMonth(), 0).getDate();
+                    days += prevMonth;
+                }
+                if (months < 0) { years--; months += 12; }
+
+                let timeString = "";
+                if (years > 0) timeString += `${years}y `;
+                if (months > 0 || years > 0) timeString += `${months}m `;
+                
+                timeString += `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                displayTimer.innerHTML = timeString + mode;
             }
-
             update();
-            timerInterval = setInterval(update, 1000);
+            intervalId = setInterval(update, 1000);
         }
 
-        // Alternar entre la vista del reloj y el panel de ajustes
-        toggleSettings.addEventListener('click', () => {
-            if (settingsPanel.style.display === 'block') {
-                settingsPanel.style.display = 'none';
-                countdownDisplay.style.display = 'block';
-                toggleSettings.textContent = '⚙️';
+        toggleBtn.addEventListener('click', () => {
+            if (settingsView.style.display === 'block') {
+                settingsView.style.display = 'none';
+                countdownView.style.display = 'block';
+                toggleBtn.textContent = '⚙️';
             } else {
-                settingsPanel.style.display = 'block';
-                countdownDisplay.style.display = 'none';
-                toggleSettings.textContent = '❌';
+                settingsView.style.display = 'block';
+                countdownView.style.display = 'none';
+                toggleBtn.textContent = '✕';
             }
         });
 
-        // Guardar los datos en el LocalStorage
-        btnSave.addEventListener('click', () => {
-            config.title = inputTitle.value;
+        saveBtn.addEventListener('click', () => {
+            config.title = inputTitle.value || "Sin título";
             config.targetDate = inputDate.value;
             config.textColor = inputColor.value;
             config.transparent = inputTransparent.checked;
 
-            // Guardado mágico en el navegador
-            localStorage.setItem('notion_countdown_config', JSON.stringify(config));
+            localStorage.setItem('micro_countdown_data', JSON.stringify(config));
 
-            // Aplicar y regresar a la pantalla del contador
-            applyConfig();
-            startCountdown();
+            applySettings();
+            renderTimer();
 
-            settingsPanel.style.display = 'none';
-            countdownDisplay.style.display = 'block';
-            toggleSettings.textContent = '⚙️';
+            settingsView.style.display = 'none';
+            countdownView.style.with = 'block';
+            countdownView.style.display = 'block';
+            toggleBtn.textContent = '⚙️';
         });
 
-        // Inicialización
-        applyConfig();
-        startCountdown();
+        applySettings();
+        renderTimer();
     </script>
 </body>
 </html>
