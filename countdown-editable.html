@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Cuenta Regresiva Inmortal</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: transparent;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .widget-container {
+            position: relative;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+            padding: 4px;
+        }
+
+        /* --- VISTA COMPACTA --- */
+        .countdown-view {
+            display: block;
+        }
+
+        .event-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
+        }
+
+        .timer-digits {
+            font-size: 1rem;
+            font-weight: 400;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .timer-digits span {
+            opacity: 0.55;
+        }
+
+        /* Engranaje sutil */
+        .settings-trigger {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+            font-size: 0.8rem;
+            transition: opacity 0.2s;
+            color: inherit;
+            padding: 0;
+        }
+
+        .widget-container:hover .settings-trigger {
+            opacity: 0.3;
+        }
+
+        .settings-trigger:hover {
+            opacity: 1 !important;
+        }
+
+        /* --- PANEL DE CONFIGURACIÓN MINI --- */
+        .settings-view {
+            display: none;
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #edece9;
+            text-align: left;
+            max-width: 220px;
+            margin: 0 auto;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 4px 6px;
+            margin-bottom: 6px;
+            border: 1px solid #e1dfda;
+            border-radius: 4px;
+            background: #fcfbfa;
+            font-family: inherit;
+            font-size: 0.75rem;
+            box-sizing: border-box;
+            outline: none;
+            color: #37352f;
+        }
+
+        .input-field:focus {
+            border-color: #2383e2;
+        }
+
+        .config-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            color: #6b6965;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        input[type="color"] {
+            border: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+            background: transparent;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 1px solid #e1dfda; border-radius: 50%; }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .save-button {
+            width: 100%;
+            background: #2383e2;
+            color: #ffffff;
+            border: none;
+            padding: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.72rem;
+            font-weight: 500;
+            margin-top: 2px;
+            text-align: center;
+        }
+
+        .save-button:hover {
+            background: #1a6ab4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="widget-container" id="widgetContainer">
+        <button class="settings-trigger" id="toggleBtn">⚙️</button>
+
+        <!-- Vista del Contador -->
+        <div class="countdown-view" id="countdownView">
+            <p class="event-title" id="displayTitle">Cargando...</p>
+            <p class="timer-digits" id="displayTimer">0y 0m 0d 00h 00m 00s</p>
+        </div>
+
+        <!-- Panel de Configuración -->
+        <div class="settings-view" id="settingsView">
+            <input type="text" id="inputTitle" class="input-field" placeholder="Título">
+            <input type="datetime-local" id="inputDate" class="input-field">
+
+            <div class="config-row">
+                <div class="color-picker-wrapper">
+                    <span>Color:</span>
+                    <input type="color" id="inputColor">
+                </div>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="inputTransparent"> Fondo transp.
+                </label>
+            </div>
+
+            <div class="config-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="inputSeconds"> Mostrar segundos
+                </label>
+            </div>
+
+            <button class="save-button" id="saveBtn">Copiar enlace para Notion</button>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('widgetContainer');
+        const countdownView = document.getElementById('countdownView');
+        const settingsView = document.getElementById('settingsView');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const saveBtn = document.getElementById('saveBtn');
+
+        const displayTitle = document.getElementById('displayTitle');
+        const displayTimer = document.getElementById('displayTimer');
+
+        const inputTitle = document.getElementById('inputTitle');
+        const inputDate = document.getElementById('inputDate');
+        const inputColor = document.getElementById('inputColor');
+        const inputTransparent = document.getElementById('inputTransparent');
+        const inputSeconds = document.getElementById('inputSeconds');
+
+        // LEER DIRECTAMENTE DE LA URL (SI EXISTE)
+        const params = new URLSearchParams(window.location.search);
+        
+        let config = {
+            title: params.get('t') || "TNC: FREEFALL",
+            targetDate: params.get('d') || "2023-10-12T04:00", 
+            textColor: params.get('c') ? '#' + params.get('c') : "#0b6e99",
+            transparent: params.get('bg') !== '0',
+            showSeconds: params.get('s') !== '0'
+        };
+
+        function applySettings() {
+            displayTitle.textContent = config.title;
+            container.style.color = config.textColor;
+            document.body.style.backgroundColor = config.transparent ? 'transparent' : '#ffffff';
+
+            inputTitle.value = config.title;
+            inputDate.value = config.targetDate;
+            inputColor.value = config.textColor;
+            inputTransparent.checked = config.transparent;
+            inputSeconds.checked = config.showSeconds;
+        }
+
+        let intervalId;
+        function renderTimer() {
+            clearInterval(intervalId);
+            function update() {
+                const target = new Date(config.targetDate);
+                const now = new Date();
+                
+                let mode = " <span>left</span>";
+                let d1 = now, d2 = target;
+                
+                if (target < now) {
+                    mode = " <span>ago</span>";
+                    d1 = target;
+                    d2 = now;
+                }
+
+                let years = d2.getFullYear() - d1.getFullYear();
+                let months = d2.getMonth() - d1.getMonth();
+                let days = d2.getDate() - d1.getDate();
+                let hours = d2.getHours() - d1.getHours();
+                let minutes = d2.getMinutes() - d1.getMinutes();
+                let seconds = d2.getSeconds() - d1.getSeconds();
+
+                if (seconds < 0) { minutes--; seconds += 60; }
+                if (minutes < 0) { hours--; minutes += 60; }
+                if (hours < 0) { days--; hours += 24; }
+                if (days < 0) {
+                    months--;
+                    let prevMonth = new Date(d2.getFullYear(), d2.getMonth(), 0).getDate();
+                    days += prevMonth;
+                }
+                if (months < 0) { years--; months += 12; }
+
+                let timeString = "";
+                if (years > 0) timeString += `${years}y `;
+                if (months > 0 || years > 0) timeString += `${months}m `;
+                
+                if (config.showSeconds) {
+                    timeString += `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                } else {
+                    timeString += `${days}d ${hours}h ${minutes}m`;
+                }
+                
+                displayTimer.innerHTML = timeString + mode;
+            }
+            update();
+            const intervalTime = config.showSeconds ? 1000 : 10000;
+            intervalId = setInterval(update, intervalTime);
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            if (settingsView.style.display === 'block') {
+                settingsView.style.display = 'none';
+                countdownView.style.display = 'block';
+                toggleBtn.textContent = '⚙️';
+            } else {
+                settingsView.style.display = 'block';
+                countdownView.style.display = 'none';
+                toggleBtn.textContent = '✕';
+            }
+        });
+
+        saveBtn.addEventListener('click', () => {
+            // Recopilar datos
+            const t = inputTitle.value || "Sin título";
+            const d = inputDate.value;
+            const c = inputColor.value.replace('#', '');
+            const bg = inputTransparent.checked ? '1' : '0';
+            const s = inputSeconds.checked ? '1' : '0';
+
+            // GENERAR NUEVA URL CON LOS PARÁMETROS ENCRIPTADOS EN EL LINK
+            const newUrl = `${window.location.origin}${window.location.pathname}?t=${encodeURIComponent(t)}&d=${d}&c=${c}&bg=${bg}&s=${s}`;
+
+            // COPIAR AUTOMÁTICAMENTE AL PORTAPAPELES
+            navigator.clipboard.writeText(newUrl).then(() => {
+                alert("¡Enlace copiado! Reemplaza el link actual en Notion por este nuevo.");
+                
+                // Actualizar vista local inmediatamente
+                config = { title: t, targetDate: d, textColor: '#' + c, transparent: inputTransparent.checked, showSeconds: inputSeconds.checked };
+                applySettings();
+                renderTimer();
+
+                settingsView.style.display = 'none';
+                countdownView.style.display = 'block';
+                toggleBtn.textContent = '⚙️';
+            }).catch(err => {
+                alert("Error al copiar. Copia la URL de tu barra de direcciones manualmente.");
+            });
+        });
+
+        applySettings();
+        renderTimer();
+    </script>
+</body>
+</html>
